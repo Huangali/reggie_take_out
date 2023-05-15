@@ -6,6 +6,7 @@ import com.hulon.reggie.entity.Employee;
 import com.hulon.reggie.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -58,7 +59,8 @@ public class EmployeeController {
             return R.error("账号已禁用");
         }
         //6 登陆成功,将员工id存入Session并返回登录成功结果
-        request.setAttribute("employee",emp.getId());
+        log.info("id:{}",emp.getName());
+        request.getSession().setAttribute("employee",emp.getId());
         return R.success(emp);
     }
 
