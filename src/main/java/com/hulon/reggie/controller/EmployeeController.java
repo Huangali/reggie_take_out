@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDateTime;
 
 /**
  * @author Hulon
@@ -59,7 +60,6 @@ public class EmployeeController {
             return R.error("账号已禁用");
         }
         //6 登陆成功,将员工id存入Session并返回登录成功结果
-        log.info("id:{}",emp.getName());
         request.getSession().setAttribute("employee",emp.getId());
         return R.success(emp);
     }
@@ -74,5 +74,27 @@ public class EmployeeController {
         //清除Session中保存的当前登录员工的id
         request.getSession().removeAttribute("employee");
         return R.success("退出成功");
+    }
+
+
+    @PostMapping
+    public R<String> save(@RequestBody Employee employee,
+                          HttpServletRequest request){
+        log.info("employee{}",employee.toString());
+
+        //设置密码.进行MD5加密
+        employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
+
+        //设置创建时间和更新时间
+        employee.setCreateTime(LocalDateTime.now());
+        employee.setUpdateTime(LocalDateTime.now());
+
+        //设置创建人和更新人
+        Long attribute = (Long) request.getSession().getAttribute("employee");
+        employee.setCreateUser(attribute);
+        employee.setUpdateUser(attribute);
+
+        employeeService.save(employee);
+        return R.success("添加员工成功");
     }
 }
