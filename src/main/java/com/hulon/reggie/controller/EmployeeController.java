@@ -1,17 +1,15 @@
 package com.hulon.reggie.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hulon.reggie.common.R;
 import com.hulon.reggie.entity.Employee;
 import com.hulon.reggie.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.web.servlet.server.Session;
 import org.springframework.util.DigestUtils;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
@@ -96,5 +94,27 @@ public class EmployeeController {
 
         employeeService.save(employee);
         return R.success("添加员工成功");
+    }
+
+    /**
+     * 员工信息分页查询
+     * @param page
+     * @param pageSize
+     * @param name
+     * @return
+     */
+    @GetMapping("/page")
+    public R<Page> page(int page,int pageSize,String name){
+        Page pageInfo = new Page(page,pageSize);
+
+        //构造条件构造器
+        LambdaQueryWrapper<Employee> lqw = new LambdaQueryWrapper<>();
+        lqw.like(StringUtils.isNotEmpty(name),Employee::getName,name);
+
+        //构造排序条件
+        lqw.orderByDesc(Employee::getUpdateTime);
+
+        employeeService.page(pageInfo,lqw);
+        return R.success(pageInfo);
     }
 }
