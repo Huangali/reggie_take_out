@@ -12,7 +12,7 @@ import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
+
 
 /**
  * @author Hulon
@@ -74,23 +74,19 @@ public class EmployeeController {
         return R.success("退出成功");
     }
 
-
+    /**
+     * 新增员工
+     * @param employee
+     * @return
+     */
     @PostMapping
-    public R<String> save(@RequestBody Employee employee,
-                          HttpServletRequest request){
-        log.info("employee{}",employee.toString());
-
+    public R<String> save(@RequestBody Employee employee){
         //设置密码.进行MD5加密
         employee.setPassword(DigestUtils.md5DigestAsHex("123456".getBytes()));
 
         //设置创建时间和更新时间
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
 
         //设置创建人和更新人
-        Long attribute = (Long) request.getSession().getAttribute("employee");
-        employee.setCreateUser(attribute);
-        employee.setUpdateUser(attribute);
 
         employeeService.save(employee);
         return R.success("添加员工成功");
@@ -116,5 +112,31 @@ public class EmployeeController {
 
         employeeService.page(pageInfo,lqw);
         return R.success(pageInfo);
+    }
+
+    /**
+     * 根据id修改用户信息
+     * @param employee
+     * @return
+     */
+    @PutMapping
+    public R<String> update(@RequestBody Employee employee){
+        employeeService.updateById(employee);
+
+        return R.success("员工信息修改成功");
+    }
+
+    /**
+     * 根据id查询员工信息
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}")
+    public R<Employee> getById(@PathVariable Long id){
+        Employee employee = employeeService.getById(id);
+        if (employee != null){
+            return R.success(employee);
+        }
+        return R.error("没有查询到相应员工信息");
     }
 }
