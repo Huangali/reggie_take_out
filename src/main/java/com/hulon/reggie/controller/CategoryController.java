@@ -8,6 +8,8 @@ import com.hulon.reggie.service.CategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 分类管理
  * @author Hulon
@@ -62,7 +64,6 @@ public class CategoryController {
     @DeleteMapping
     public R<String> delete(Long ids){
 
-        //categoryService.removeById(ids);
         categoryService.remove(ids);
 
         return R.success("删除成功");
@@ -79,6 +80,23 @@ public class CategoryController {
         categoryService.updateById(category);
         return R.success("修改菜品信息成功");
     }
+
+
+    /**
+     * 根据条件来查询分类数据
+     * @param category
+     * @return
+     */
+    @GetMapping("/list")
+    public R<List<Category>> list(Category category){
+        LambdaQueryWrapper<Category> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(category.getType() != null,Category::getType,category.getType());
+        lqw.orderByAsc(Category::getSort).orderByDesc(Category::getUpdateTime);
+
+        List<Category> list = categoryService.list(lqw);
+        return R.success(list);
+    }
+
 
 
 
