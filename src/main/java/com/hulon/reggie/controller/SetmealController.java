@@ -7,6 +7,7 @@ import com.hulon.reggie.dto.SetmealDto;
 import com.hulon.reggie.entity.Category;
 import com.hulon.reggie.entity.Setmeal;
 import com.hulon.reggie.service.CategoryService;
+import com.hulon.reggie.service.DishService;
 import com.hulon.reggie.service.SetmealDishService;
 import com.hulon.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
@@ -35,6 +36,9 @@ public class SetmealController {
 
     @Autowired
     private CategoryService categoryService;
+
+    @Autowired
+    private DishService dishService;
 
     /**
      * 新增套餐
@@ -121,5 +125,18 @@ public class SetmealController {
         }
 
         return R.success("删除成功");
+    }
+
+    @GetMapping("/list")
+    public R<List<Setmeal>> list(Setmeal setmeal){
+        LambdaQueryWrapper<Setmeal> lqw = new LambdaQueryWrapper<>();
+        lqw.eq(setmeal != null,Setmeal::getCategoryId,setmeal.getCategoryId());
+        lqw.eq(setmeal.getStatus() != null,Setmeal::getStatus,1);
+        lqw.orderByAsc(Setmeal::getUpdateTime);
+
+        List<Setmeal> list = setmealService.list(lqw);
+
+        return R.success(list);
+
     }
 }

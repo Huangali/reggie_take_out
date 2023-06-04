@@ -25,13 +25,13 @@ function setmealListApi(data) {
 }
 
 //获取购物车内商品的集合
-function cartListApi(data) {
-    return $axios({
-        'url': '/shoppingCart/list',
-        'method': 'get',
-        params:{...data}
-    })
-}
+const cartListApi = data => $axios({
+    'url': '/shoppingCart/list',
+    // 'url': '/front/cartData.json',
+
+    'method': 'get',
+    params: {...data}
+});
 
 //购物车中添加商品
 function  addCartApi(data){

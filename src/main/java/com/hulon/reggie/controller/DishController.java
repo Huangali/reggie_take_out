@@ -6,6 +6,7 @@ import com.hulon.reggie.common.R;
 import com.hulon.reggie.dto.DishDto;
 import com.hulon.reggie.entity.Category;
 import com.hulon.reggie.entity.Dish;
+import com.hulon.reggie.entity.DishFlavor;
 import com.hulon.reggie.service.CategoryService;
 import com.hulon.reggie.service.DishFlavorService;
 import com.hulon.reggie.service.DishService;
@@ -119,14 +120,52 @@ public class DishController {
         return R.success("修改成功");
     }
 
+    /**
+     * 根据条件查询对应的菜品数据
+     * @param dish
+     * @return
+     */
     @GetMapping("/list")
-    public R<List<Dish>> list(Dish dish){
+    public R<List<DishDto>> list(Dish dish){
         LambdaQueryWrapper<Dish> lqw = new LambdaQueryWrapper<>();
         lqw.eq(dish.getCategoryId() != null,Dish::getCategoryId,dish.getCategoryId());
         lqw.eq(Dish::getStatus,1);
         lqw.orderByAsc(Dish::getSort).orderByDesc(Dish::getCreateTime);
         List<Dish> list = dishService.list(lqw);
-        return R.success(list);
+
+        List<DishDto> listDto = list.stream().map(item -> {
+            DishDto dishDto = new DishDto();
+
+            BeanUtils.copyProperties(item,dishDto);
+
+            Long categoryId = item.getCategoryId();
+            //根据id查询分类对象
+
+            Category byId = categoryService.getById(categoryId);
+
+            if (byId != null){
+                String name1 = byId.getName();
+                dishDto.setCategoryName(name1);
+            }
+
+            Long dishId = dishDto.getId();
+
+            LambdaQueryWrapper<DishFlavor> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+
+            lambdaQueryWrapper.eq(DishFlavor::getDishId,dishId);
+
+            List<DishFlavor> list1 = dishFlavorService.list(lambdaQueryWrapper);
+
+            dishDto.setFlavors(list1);
+
+            return dishDto;
+
+
+        }).collect(Collectors.toList());
+
+
+
+        return R.success(listDto);
     }
 
 
