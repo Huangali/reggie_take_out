@@ -83,8 +83,6 @@ o
 ?src/main/java/com/hulon/reggie/controller/CommonController.java,1\0\10228898feb2cc99dbe95375e4c76b18444e5617
 o
 ?src/main/java/com/hulon/reggie/controller/OrdersController.java,0\4\04601b362ae46bd8935c101b2e57ed099661558b
-q
-Asrc/main/java/com/hulon/reggie/controller/EmployeeController.java,e\4\e448c542fa7f9eaa0a6b66fb7dfe8ce1dd8e2241
 u
 Esrc/main/java/com/hulon/reggie/controller/ShoppingCartController.java,d\1\d1d75d73b32da30157f54e04a7ce316fde266b41
 n
