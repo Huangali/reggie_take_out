@@ -13,6 +13,9 @@ import com.hulon.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,12 +42,15 @@ public class SetmealController {
 
     @Autowired
     private DishService dishService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 新增套餐
      * @param setmealDto
      * @return
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @PostMapping
     public R<String> save(@RequestBody SetmealDto setmealDto){
         setmealService.saveWithDish(setmealDto);
@@ -106,6 +112,7 @@ public class SetmealController {
      * @param setmeal
      * @return
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @PutMapping
     public R<String> update(@RequestBody SetmealDto setmeal){
         setmealService.updateByIdDish(setmeal);
@@ -117,24 +124,35 @@ public class SetmealController {
      * @param ids
      * @return
      */
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @DeleteMapping
     public R<String> delete(Long[] ids){
         for (Long i:
              ids) {
             setmealService.deleteByIdDish(i);
         }
-
         return R.success("删除成功");
     }
-
     @GetMapping("/list")
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId + '_' + #setmeal.status")
     public R<List<Setmeal>> list(Setmeal setmeal){
+        //String key = "setmeal_" + setmeal.getCategoryId() + "_" + setmeal.getStatus();
+        List<Setmeal> list = null;
+        //
+        ////从Redis中获取套餐数据
+        //list = (List<Setmeal>) redisTemplate.opsForValue().get(key);
+        //if (list != null){
+        //    //套餐数据存在,直接返回数据
+        //
+        //    return R.success(list);
+        //}
         LambdaQueryWrapper<Setmeal> lqw = new LambdaQueryWrapper<>();
         lqw.eq(setmeal != null,Setmeal::getCategoryId,setmeal.getCategoryId());
         lqw.eq(setmeal.getStatus() != null,Setmeal::getStatus,1);
         lqw.orderByAsc(Setmeal::getUpdateTime);
-
-        List<Setmeal> list = setmealService.list(lqw);
+        list = setmealService.list(lqw);
+        //套餐数据不存在，查询数据库将套餐数据传入Redis中
+        //redisTemplate.opsForValue().set(key,list,60, TimeUnit.MINUTES);
 
         return R.success(list);
 
