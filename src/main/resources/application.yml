@@ -53,6 +53,6 @@ mybatis-plus:
       id-type: ASSIGN_ID
 reggie:
 #  Linux
-  path: /usr/local/java-app/reggie-img
+  path: /usr/local/java-app/reggie-img/
 #  windows
-#  path: D:/img
+#  path: D:/img/
